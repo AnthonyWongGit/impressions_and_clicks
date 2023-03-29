@@ -60,5 +60,5 @@ for key in data_dict:
         impression_click_distances.append(distance)
 
 # Finally print out the required data
-print(f"Average time between impression and click is {round(sum(impression_click_times)/len(impression_click_times))} second(s)")
+print(f"Average time between impression and click is {round(sum(impression_click_times)/len(impression_click_times)/1000, 2)} second(s)")
 print(f"Average distance between impression and click is {round(sum(impression_click_distances)/len(impression_click_distances))}m")
