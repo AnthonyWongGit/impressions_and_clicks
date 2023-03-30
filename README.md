@@ -16,3 +16,8 @@ Used the csv library to read from the csv file, sys to read the arguments in the
 
 # engagement
 
+Created an SQL file which creates the necessary tables to store the data from the CSV files
+
+Created another SQL file to run queries and return the data required
+
+No additional packages were used
