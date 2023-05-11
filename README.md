@@ -1,5 +1,7 @@
 # impressions_and_clicks
 
+OUTDATED - TODO
+
 Extract data from csv and put it into a dictionary so that the original csv files do not need to be continually read
 
 Adds all UUID as the dictionary key from the impression file
