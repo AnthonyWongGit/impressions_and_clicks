@@ -1,20 +1,22 @@
 # impressions_and_clicks
 
-OUTDATED - TODO
+To run the script, type the following into the command line:
 
-Extract data from csv and put it into a dictionary so that the original csv files do not need to be continually read
+python3 src/impression_click.py data/impression_data.csv data/click_data.csv
 
-Adds all UUID as the dictionary key from the impression file
+This will output the average time and distance between all impressions and their corresponding click (if applicable)
 
-If there is a corresponding click with the same ID in the click file, it can be added by doing a key lookup rather than repeatedly iterating through the entire dictionary. Becomes more important as the data set gets larger.
+The script uses pandas, h3, sys, and time modules to complete the calculations. These were used for the following purposes:
+    * pandas - reads the csv as a dataframe and performs inner on the impression dataframe against the click dataframe
+    * h3 - calculates distances given latitude and longitude values
+    * sys - allows flexibility for naming the csv files
+    * time - calculates the time taken to run the script
 
-Made sure to skip reading the header (this one caught me off guard when I was trying to calculate time differences as the cause wasn't obvious)
+The csv files are first read using the pandas read csv, and stores them as a dataframe. An inner join is performed to match against impressions which have a corresponding click. This will discard rows with no match.
 
-For each key in the dictionary, if it contained a value 'click', then I would calculate the time and distance differences from the impression by accessing the value of 'impression' and 'click' to retrieve the 'timestamp', 'latitude', and 'longitude' values.
+For each row in the newly merged dataframe, the time difference is calculated by subtracting the click timestamp against the impression timestamp, and then adding it to a time list. The distance is also calculated using the h3 module, by taking the latitude/longitude values of the impression and click, taking the distance, and then finally adding it to a distance list.
 
-Thought about using comprehension but then it could be a little difficult to read so I stuck with breaking down the variables into multiple lines for easier readability
-
-Used the csv library to read from the csv file, sys to read the arguments in the command line, and h3 to calculate positions
+The results are printed by taking the average value of the lists, and formatting it into the correct unit of measurement.
 
 # engagement
 
