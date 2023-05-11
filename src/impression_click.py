@@ -2,6 +2,7 @@ import sys
 import h3
 import pandas as pd
 import time
+import numpy as np
 
 start_time = time.time()
 
@@ -20,20 +21,24 @@ df2 = pd.read_csv(click_data_name)
 merged_df = pd.merge(df1, df2, on='event_id', how='inner')
 
 # Calculate average time taken between impression event and click event, as well as average distance between impression event and click event
-impression_click_times = []
-impression_click_distances = []
+times_list = []
+distances_list = []
 
 for index, row in merged_df.iterrows():
     row_dict = row.to_dict()
 
-    impression_click_times.append(row_dict["timestamp_y"] - row_dict["timestamp_x"])
+    times_list.append(row_dict["timestamp_y"] - row_dict["timestamp_x"])
 
     impression_position = (row_dict["latitude_x"], row_dict["longitude_x"])
     click_position = (row_dict["latitude_y"], row_dict["longitude_y"])
-    impression_click_distances.append(h3.point_dist(click_position, impression_position, unit='m'))
+    distances_list.append(h3.point_dist(click_position, impression_position, unit='m'))
 
-print(f"Average time between impression and click is {round(sum(impression_click_times)/len(impression_click_times)/1000, 2)} second(s)")
-print(f"Average distance between impression and click is {round(sum(impression_click_distances)/len(impression_click_distances))}m")
+# Convert lists into numpy arrays for quicker calculation
+times_array = np.array(times_list)
+distances_array = np.array(distances_list)
+
+print(f"Average time between impression and click is {round(np.sum(times_array)/len(times_array)/1000, 2)} second(s)")
+print(f"Average distance between impression and click is {round(np.sum(distances_array)/len(distances_array))}m")
 
 end_time = time.time()
 
