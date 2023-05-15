@@ -20,7 +20,8 @@ with engine.connect() as connection:
     '''
         SELECT COUNT(DISTINCT user_id), COUNT(user_id) 
         FROM dataset1;
-    '''))
+    '''
+    ))
     dataset1_unique_users, dataset1_total_users = dataset1_users_query.fetchone()
     print(f'There are {dataset1_unique_users} unique users out of {dataset1_total_users} in dataset1')
 
@@ -29,7 +30,8 @@ with engine.connect() as connection:
     '''
         SELECT COUNT(DISTINCT user_id), COUNT(user_id) 
         FROM dataset2;
-    '''))
+    '''
+    ))
     dataset2_unique_users, dataset2_total_users = dataset2_users_query.fetchone()
     print(f'There are {dataset2_unique_users} unique users out of {dataset2_total_users} in dataset2')
 
@@ -42,9 +44,40 @@ with engine.connect() as connection:
             FROM dataset2
             WHERE age >= 55
             AND nrs_grade IN ('A', 'B')
-        ) AS target_audience
-    '''))
+        ) AS target_audience;
+    '''
+    ))
     matching_targets = target_audience_query.fetchone()[0]
     print(f'There are {matching_targets} unique users matching the target audience, which is {round(matching_targets / dataset2_unique_users * 100, 2)}% of the total unique users')
 
+    # Reach for each asset
+    reach_query = connection.execute(text(
+    '''
+        WITH matching_users AS (
+            SELECT DISTINCT user_id
+            FROM (
+                SELECT *
+                FROM dataset2
+                WHERE age >= 55
+                AND nrs_grade IN ('A', 'B')
+            ) AS target_audience
+        )
+        SELECT
+            asset,
+            COUNT(DISTINCT user_id) AS asset_count
+        FROM dataset1
+        WHERE user_id IN (
+            SELECT user_id
+            FROM matching_users
+        ) 
+        AND asset IN ('Asset1', 'Asset2', 'Asset3', 'Asset4', 'Asset5')
+        GROUP BY asset;
+    '''
+    ))
+    asset_reach = [0, 0, 0, 0, 0]
     
+    for index, asset in enumerate(reach_query.fetchall()):
+        asset_reach[index] = asset[1]
+
+    for index, asset in enumerate(asset_reach):
+        print(f'Reach for asset{index+1} is {asset}')
