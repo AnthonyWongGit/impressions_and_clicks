@@ -56,7 +56,7 @@ with engine.connect() as connection:
     print(f'There are {matching_targets} unique users matching the target audience, which is {round(matching_targets / dataset2_unique_users * 100, 2)}% of the total unique users')
 
     # Initialise each dictionary
-    asset_reach = asset_frequency = {'Asset1': 0, 'Asset2': 0, 'Asset3': 0, 'Asset4': 0, 'Asset5': 0}
+    asset_reach = asset_frequency = asset_ctr = {'Asset1': 0, 'Asset2': 0, 'Asset3': 0, 'Asset4': 0, 'Asset5': 0}
 
     # Reach for each asset
     reach_query = connection.execute(text(
@@ -121,4 +121,4 @@ with engine.connect() as connection:
 
     print(f'Frequency: {asset_frequency}')
 
-    
+    # Click through rate (CTR) for each asset

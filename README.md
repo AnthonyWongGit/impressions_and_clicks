@@ -1,6 +1,12 @@
 # impressions_and_clicks
 
-To run the script, type the following into the command line:
+Ensure that you have set up a virtual environment and installed the requirements from the requirements.txt file by typing the following into the command line (command syntax may vary depending on system):
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+Then to run the script, type the following into the command line:
 
 python3 src/impression_click.py data/impression_data.csv data/click_data.csv
 
@@ -21,8 +27,18 @@ The lists are converted into a numpy array. The results are printed by taking th
 
 # engagement
 
-Created an SQL file which creates the necessary tables to store the data from the CSV files
+You must ensure that your psql database is online. Also ensure that you have already followed the setup instructions from earlier for the virtual environment. Then, you need to run the initialisation script by typing the following into the command line:
 
-Created another SQL file to run queries and return the data required
+psql -f src/init_dataset.sql
 
-No additional packages were used
+Then you have 2 options which is to either run the (old) sql file or the newer, more optimised python script containing sql commands. To run the (old) sql file, simply type the following into the command line:
+
+psql -f src/query_dataset.sql
+
+This will return a text and a table of KPIs for each asset.
+
+If you wish to run the python script then you need to ensure that the credentials in the db_credentials.json match your psql credentials by filling in the blank username and password fields. Then, type the following into the command line:
+
+python3 src/query_dataset.py
+
+This will return strings and dictionaries containing KPIs for each asset.
