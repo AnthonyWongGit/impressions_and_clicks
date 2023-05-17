@@ -56,7 +56,13 @@ with engine.connect() as connection:
     print(f'There are {matching_targets} unique users matching the target audience, which is {round(matching_targets / dataset2_unique_users * 100, 2)}% of the total unique users')
 
     # Initialise each dictionary
-    asset_reach = asset_frequency = asset_ctr = {'Asset1': 0, 'Asset2': 0, 'Asset3': 0, 'Asset4': 0, 'Asset5': 0}
+    assets = ['Asset1', 'Asset2', 'Asset3', 'Asset4', 'Asset5']
+    asset_reach = {asset: 0 for asset in assets}
+    asset_impressions = {asset: 0 for asset in assets}
+    asset_frequency = {asset: 0 for asset in assets}
+    asset_ctr = {asset: 0 for asset in assets}
+    asset_vtr = {asset: 0 for asset in assets}
+    asset_cr = {asset: 0 for asset in assets}
 
     # Reach for each asset
     reach_query = connection.execute(text(
@@ -116,9 +122,106 @@ with engine.connect() as connection:
     ))
 
     for asset in impression_query.fetchall():
+        # Impressions for each asset
+        asset_impressions[asset[0]] = asset[1]
+
         if asset_reach[asset[0]] != 0:
             asset_frequency[asset[0]] = asset[1] / asset_reach[asset[0]]
 
     print(f'Frequency: {asset_frequency}')
 
     # Click through rate (CTR) for each asset
+    click_query = connection.execute(text(
+    '''
+        WITH matching_users AS (
+            SELECT DISTINCT user_id
+            FROM (
+                SELECT *
+                FROM dataset2
+                WHERE age >= 55
+                AND nrs_grade IN ('A', 'B')
+            ) AS target_audience
+        )
+        SELECT
+            asset,
+            SUM(clicks)
+        FROM dataset1
+        WHERE user_id IN (
+            SELECT user_id
+            FROM matching_users
+        ) 
+        AND asset IN ('Asset1', 'Asset2', 'Asset3', 'Asset4', 'Asset5')
+        GROUP BY asset
+        ORDER BY asset;
+    '''
+    ))
+
+    for asset in click_query.fetchall():
+        if asset_impressions[asset[0]] != 0:
+            asset_ctr[asset[0]] = asset[1] / asset_impressions[asset[0]] * 100
+
+    print(f'CTR: {asset_ctr}')
+
+    # View through rate (VTR) for each asset
+    complete_views_query = connection.execute(text(
+    '''
+        WITH matching_users AS (
+            SELECT DISTINCT user_id
+            FROM (
+                SELECT *
+                FROM dataset2
+                WHERE age >= 55
+                AND nrs_grade IN ('A', 'B')
+            ) AS target_audience
+        )
+        SELECT
+            asset,
+            SUM(video_complete_views)
+        FROM dataset1
+        WHERE user_id IN (
+            SELECT user_id
+            FROM matching_users
+        ) 
+        AND asset IN ('Asset1', 'Asset2', 'Asset3', 'Asset4', 'Asset5')
+        GROUP BY asset
+        ORDER BY asset;
+    '''
+    ))
+
+    for asset in complete_views_query.fetchall():
+        if asset_impressions[asset[0]] != 0:
+            asset_vtr[asset[0]] = asset[1] / asset_impressions[asset[0]] * 100
+
+    print(f'VTR: {asset_vtr}')
+
+    # Conversion rate (CR) for each asset
+    conversion_query = connection.execute(text(
+    '''
+        WITH matching_users AS (
+            SELECT DISTINCT user_id
+            FROM (
+                SELECT *
+                FROM dataset2
+                WHERE age >= 55
+                AND nrs_grade IN ('A', 'B')
+            ) AS target_audience
+        )
+        SELECT
+            asset,
+            SUM(conversions)
+        FROM dataset1
+        WHERE user_id IN (
+            SELECT user_id
+            FROM matching_users
+        ) 
+        AND asset IN ('Asset1', 'Asset2', 'Asset3', 'Asset4', 'Asset5')
+        GROUP BY asset
+        ORDER BY asset;
+    '''
+    ))
+
+    for asset in conversion_query.fetchall():
+        if asset_impressions[asset[0]] != 0:
+            asset_cr[asset[0]] = asset[1] / asset_impressions[asset[0]] * 100
+
+    print(f'CR: {asset_cr}')
