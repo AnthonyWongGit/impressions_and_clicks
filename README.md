@@ -42,3 +42,7 @@ If you wish to run the python script then you need to ensure that the credential
 python3 src/query_dataset.py
 
 This will return strings and dictionaries containing KPIs for each asset.
+
+The script uses sqlalchemy, and psycopg modules to be able to query the database. These were used for the following purposes:
+    * sqlalchemy - acts as the ORM
+    * psycopg - acts as the database driver
