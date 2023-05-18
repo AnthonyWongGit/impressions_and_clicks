@@ -2,3 +2,4 @@ h3==3.7.6
 pandas==2.0.1
 sqlalchemy==2.0.13
 psycopg2-binary==2.9.6
+scikit-learn==1.2.2
