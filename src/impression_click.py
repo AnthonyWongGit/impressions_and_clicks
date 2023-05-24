@@ -3,6 +3,7 @@ import h3
 import pandas as pd
 import time
 import numpy as np
+import folium
 
 start_time = time.time()
 
@@ -39,6 +40,31 @@ distances_array = np.array(distances_list)
 
 print(f"Average time between impression and click is {round(np.sum(times_array)/len(times_array)/1000, 2)} second(s)")
 print(f"Average distance between impression and click is {round(np.sum(distances_array)/len(distances_array))}m")
+
+# Create a folium map
+political_countries_url = (
+    "http://geojson.xyz/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson"
+)
+
+m = folium.Map(location=(30, 10), zoom_start=3, tiles="cartodb positron")
+
+for i, row in merged_df.iterrows():
+    lat = merged_df.at[i, 'latitude_x']
+    lng = merged_df.at[i, 'longitude_x']
+
+    popup = f'Location {lat},{lng}'
+
+    folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color='blue')).add_to(m)
+
+# folium.Choropleth(
+#     geo_data=political_countries_url,
+#     data=merged_df
+#     columns=[]
+# ).add_to(m)
+m.save("folium_map.html")
+
+# print(merged_df)
+
 
 end_time = time.time()
 
