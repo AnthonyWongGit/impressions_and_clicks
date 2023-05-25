@@ -4,6 +4,7 @@ import pandas as pd
 import time
 import numpy as np
 import folium
+from folium.plugins import HeatMap
 
 start_time = time.time()
 
@@ -42,7 +43,7 @@ print(f"Average time between impression and click is {round(np.sum(times_array)/
 print(f"Average distance between impression and click is {round(np.sum(distances_array)/len(distances_array))}m")
 
 # Create a folium map with markers
-marker_map = folium.Map(location=(30, 10), zoom_start=3, tiles="cartodb positron")
+marker_map = folium.Map(location=(54, -5), zoom_start=6, tiles="cartodb positron")
 
 for i, row in merged_df.iterrows():
     lat = merged_df.at[i, 'latitude_x']
@@ -66,7 +67,21 @@ for i, row in merged_df.iterrows():
 
     folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color=marker_color)).add_to(marker_map)
 
-marker_map.save("folium_map.html")
+marker_map.save("folium_marker_map.html")
+
+# Create a folium heat map
+heat_map = folium.Map(location=(54, -5), zoom_start=6.5, tiles="cartodb positron")
+
+merged_df['latitude_x'] = merged_df['latitude_x'].astype(float)
+merged_df['longitude_x'] = merged_df['longitude_x'].astype(float)
+
+heat_df = merged_df[['latitude_x', 'longitude_x']]
+
+heat_data = [[row['latitude_x'], row['longitude_x']] for index, row in heat_df.iterrows()]
+
+HeatMap(heat_data).add_to(heat_map)
+
+heat_map.save("folium_heat_map.html")
 
 end_time = time.time()
 
