@@ -4,7 +4,7 @@ import pandas as pd
 import time
 import numpy as np
 import folium
-from folium.plugins import HeatMap
+from folium.plugins import HeatMap, MarkerCluster
 
 start_time = time.time()
 
@@ -56,6 +56,7 @@ for i, row in merged_df.iterrows():
 
     marker_color = 'red'
 
+    # Set the marker color depending on the distance between impression and click
     if dst_to_click < 500:
         marker_color = 'lightblue'
     elif dst_to_click < 1000:
@@ -72,9 +73,11 @@ marker_map.save("folium_marker_map.html")
 # Create a folium heat map
 heat_map = folium.Map(location=(54, -5), zoom_start=6.5, tiles="cartodb positron")
 
+# Ensure frames are floats
 merged_df['latitude_x'] = merged_df['latitude_x'].astype(float)
 merged_df['longitude_x'] = merged_df['longitude_x'].astype(float)
 
+# Create a list of positions
 heat_df = merged_df[['latitude_x', 'longitude_x']]
 
 heat_data = [[row['latitude_x'], row['longitude_x']] for index, row in heat_df.iterrows()]
@@ -82,6 +85,20 @@ heat_data = [[row['latitude_x'], row['longitude_x']] for index, row in heat_df.i
 HeatMap(heat_data).add_to(heat_map)
 
 heat_map.save("folium_heat_map.html")
+
+# Create a folium map with marker clusters
+cluster_marker_map = folium.Map(location=(54, -5), zoom_start=6.5, tiles="cartodb positron")
+
+marker_cluster = MarkerCluster().add_to(cluster_marker_map)
+
+# Add marker for each df, and add to cluster and not the map
+for i, row in merged_df.iterrows():
+    popup = f"Location {merged_df.at[i, 'latitude_x']},{merged_df.at[i, 'longitude_x']}"
+    folium.Marker(list((merged_df.at[i, 'latitude_x'], merged_df.at[i, 'longitude_x'])), popup=popup).add_to(marker_cluster)
+
+folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color=marker_color)).add_to(cluster_marker_map)
+
+cluster_marker_map.save("folium_cluster_marker_map.html")
 
 end_time = time.time()
 
