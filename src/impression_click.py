@@ -41,30 +41,32 @@ distances_array = np.array(distances_list)
 print(f"Average time between impression and click is {round(np.sum(times_array)/len(times_array)/1000, 2)} second(s)")
 print(f"Average distance between impression and click is {round(np.sum(distances_array)/len(distances_array))}m")
 
-# Create a folium map
-political_countries_url = (
-    "http://geojson.xyz/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson"
-)
-
-m = folium.Map(location=(30, 10), zoom_start=3, tiles="cartodb positron")
+# Create a folium map with markers
+marker_map = folium.Map(location=(30, 10), zoom_start=3, tiles="cartodb positron")
 
 for i, row in merged_df.iterrows():
     lat = merged_df.at[i, 'latitude_x']
     lng = merged_df.at[i, 'longitude_x']
+    impression_position = (merged_df.at[i, 'latitude_x'], merged_df.at[i, 'longitude_x'])
+    click_position = (merged_df.at[i, 'latitude_y'], merged_df.at[i, 'longitude_y'])
+    dst_to_click = h3.point_dist(click_position, impression_position, unit='m')
 
     popup = f'Location {lat},{lng}'
 
-    folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color='blue')).add_to(m)
+    marker_color = 'red'
 
-# folium.Choropleth(
-#     geo_data=political_countries_url,
-#     data=merged_df
-#     columns=[]
-# ).add_to(m)
-m.save("folium_map.html")
+    if dst_to_click < 500:
+        marker_color = 'lightblue'
+    elif dst_to_click < 1000:
+        marker_color = 'blue'
+    elif dst_to_click < 1500:
+        marker_color = 'cadetblue'
+    elif dst_to_click < 2000:
+        marker_color = 'orange'
 
-# print(merged_df)
+    folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color=marker_color)).add_to(marker_map)
 
+marker_map.save("folium_map.html")
 
 end_time = time.time()
 

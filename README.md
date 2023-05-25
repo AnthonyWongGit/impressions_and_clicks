@@ -18,12 +18,15 @@ The script uses pandas, h3, sys, and time modules to complete the calculations. 
     * sys - allows flexibility for naming the csv files
     * time - calculates the time taken to run the script
     * numpy - converts list into numpy array for faster calculations
+    * folium - generates an html map
 
 The csv files are first read using the pandas read csv, and stores them as a dataframe. An inner join is performed to match against impressions which have a corresponding click. This will discard rows with no match.
 
 For each row in the newly merged dataframe, the time difference is calculated by subtracting the click timestamp against the impression timestamp, and then adding it to a time list. The distance is also calculated using the h3 module, by taking the latitude/longitude values of the impression and click, taking the distance, and then finally adding it to a distance list.
 
 The lists are converted into a numpy array. The results are printed by taking the average value of the arrays, and formatting it into the correct unit of measurement.
+
+Then a folium map is created to visualise the data.
 
 # engagement
 
