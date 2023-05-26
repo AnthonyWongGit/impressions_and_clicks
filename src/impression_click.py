@@ -22,6 +22,9 @@ df2 = pd.read_csv(click_data_name)
 # Merge the two dataframes based on the "key" column by left joining impression data with the click data
 merged_df = pd.merge(df1, df2, on='event_id', how='inner')
 
+# Drop outliers
+merged_df = merged_df[(merged_df['latitude_x'] != 0) & (merged_df['longitude_x'] != 0)]
+
 # Calculate average time taken between impression event and click event, as well as average distance between impression event and click event
 times_list = []
 distances_list = []
@@ -94,9 +97,8 @@ marker_cluster = MarkerCluster().add_to(cluster_marker_map)
 # Add marker for each df, and add to cluster and not the map
 for i, row in merged_df.iterrows():
     popup = f"Location {merged_df.at[i, 'latitude_x']},{merged_df.at[i, 'longitude_x']}"
-    folium.Marker(list((merged_df.at[i, 'latitude_x'], merged_df.at[i, 'longitude_x'])), popup=popup).add_to(marker_cluster)
-
-folium.Marker(location = [lat, lng], popup=popup, icon = folium.Icon(color=marker_color)).add_to(cluster_marker_map)
+    marker_icon = folium.Icon(color='red')
+    folium.Marker(list((merged_df.at[i, 'latitude_x'], merged_df.at[i, 'longitude_x'])), popup=popup, icon=marker_icon).add_to(marker_cluster)
 
 cluster_marker_map.save("folium_cluster_marker_map.html")
 
